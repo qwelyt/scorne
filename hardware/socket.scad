@@ -1,5 +1,9 @@
-$fn=30;
+/*[How big of a socket]*/
+pinsPerSide=12;
+/*[Probably don't touch]*/
 pinWidth=2.54;
+$fn=30;
+
 
 module pinHold(pins=12){
   difference(){
@@ -23,7 +27,7 @@ module side(pins=12,center=true){
 }
 
 module socket(pins=12){
-  mov = 2.54/2*pins-1.4;
+  mov = pinWidth/2*pins-1.4;
 
   union(){
     translate([-7.086,0,0])side(pins);
@@ -52,9 +56,5 @@ module socket(pins=12){
   }
 }
 
-socket(24);
-translate([30,0,0])socket(12);
-translate([60,0,0])socket(7);
-translate([90,0,0])socket(6);
-translate([120,0,0])socket(4);
+socket(pinsPerSide);
 
