@@ -5,5 +5,5 @@ It is basically a corne, but with three extra buttons. This makes the layout wor
 
 # LICENCE
 The firmware is under GNU GPL 3.0.  
-The hardware is under CERN-OHW-S.  
+The hardware is under CERN-OHL-S.  
 See the respective directories for this.
