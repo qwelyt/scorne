@@ -238,16 +238,40 @@ module plate(h=10){
 }
 
 module bottom(){
+  module socketHolder(){
+    union(){
+      cube([10,6,5]);
+      translate([0,0,4])cube([10,1.3,3]);
+      translate([0,6-1.3,4])cube([10,1.3,3]);
+    }
+  }
+  module socketLegHoles(){
+    for(i = [0:1:11]){
+      translate([0,i*2.54,0])cylinder(d=1,h=5);
+    }
+  }
   difference(){
     union(){
       plateNoCuts();
-      translate([size(5.993),-size(0.454),keyZ])
+      translate([size(5.993),-size(0.454),keyZ]){
         cube([size(0.945),size(3.554),moduleZ]);
+        x=3.5;
+        y=30.2;
+        z=1.3;
+        translate([x,y,z])socketHolder();
+        translate([x,y+13.5,z])socketHolder();
+        translate([x,y+27.5,z])socketHolder();
+      }
     }
     translate([0,0,-1.1])holePlacement()cylinder(d1=mScrewheadD(mSize),d2=mSize,h=moduleZ+0.2);
     
     translate([size(6.937),size(2.993),0])cornerchamfer("UR");
+    
+    translate([size(6.046),size(1.265),0])socketLegHoles();
+    translate([size(6.8525),size(1.265),0])socketLegHoles();
   }
+  
+
 }
 
 
@@ -255,12 +279,11 @@ module bottom(){
 //  Render
 //////////////////////////////
 
-//#translate([2.2,2.2,0])rotate([180,180,0])import("cherryplate.stl");
 
-translate([size(6.4),size(2),moduleZ]){
-//  import("pro-micro.stl");
-  import("pro-micro_wpins.stl");
+color([1,0,1])
+bottom();
+translate([size(6.45),size(2),7]){
+    rotate([0,0,180])import("socket.stl");
+    translate([0,0,2.5])import("proMicro.stl");
 }
-
-color([1,0,1])bottom();
 color([0.7,1,0.5])translate([0,0,moduleZ+9])plate();
