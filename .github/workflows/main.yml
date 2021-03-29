@@ -28,4 +28,4 @@ jobs:
       - name: Push render
         uses: actions-go/push@v1
         with:
-          commit-files: scorne.scad
+          commit-files: hardware/scorne.stl
