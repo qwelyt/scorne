@@ -24,7 +24,7 @@ jobs:
       - name: Render and build OpenSCAD project
         uses: flat35hd99/eval-openscad@v0.2
         with:
-          command: 'openscad -o "scorne.stl" "scorne.scad"'
+          command: 'openscad -o "hardware/scorne.stl" "hardware/scorne.scad"'
       - name: Push render
         uses: actions-go/push@v1
         with:
