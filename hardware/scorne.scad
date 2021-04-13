@@ -30,7 +30,7 @@ function mNutH(m) = m-1;
 function mNutD(m) = m*(1+((1/3)*2));
 function mNutDHole(m) = mNutD(m)+2;
 function mScrewheadH(m) = m-1;
-function mScrewheadD(m) = m+2; // This is most probably not correct, but works for m3
+function mScrewheadD(m) = m+2.5; // This is most probably not correct, but works for m3
 
           
 function position(x,y,z) = [space*(x-1), space*(y-1), z];
@@ -140,8 +140,8 @@ module holePlacement(){
   translate([size(1),size(0),0])children();
   translate([size(1),size(2),0])children();
   
-  translate([size(3.3),size(0),0])children();
-  translate([size(2.95),size(2.24),0])children();
+//  translate([size(3.3),size(0),0])children();
+//  translate([size(2.95),size(2.24),0])children();
   
   translate([size(5.7),size(0),0])children();
   translate([size(5),size(2.14),0])children();
@@ -191,10 +191,14 @@ module plateNoCuts(){
           rotate([0,0,20])
           cube([size(1),size(1),moduleZ]);
           
-        translate([size(5.4005),-size(1.05),keyZ])
+        translate([size(5.4005),-size(1.0495),keyZ])
           rotate([0,0,-14.61])
           cube([size(1.07),size(1),moduleZ]);
       }
+      translate([size(4.3),-size(1.792),-moduleZ])
+          rotate([0,0,-14.8])
+          cube([size(2),size(1),moduleZ*2]);
+        
       
       translate([0,-size(1),0])cornerchamfer("LL");
       translate([size(3),-size(0.82),0])cornerchamfer("LL",l=1);
@@ -225,16 +229,52 @@ module plateNoCuts(){
     
   }
 }
-
-module plate(h=10){
-  difference(){
-    plateNoCuts();
-    translate([size(6),size(3),0])cornerchamfer("UR");
-    union(){
-      translate([0,0,moduleZ])keyPlacement()mxSwitchCut();
+module cableGutter(h=10,rotate=false){
+  if(rotate){
+    union()translate([-0.5,-size(0.5),-(h/2)+1])rotate([0,0,90]){
+      translate([0,1.1,0])cube([size(0.5),1,h-2],center=true);
+      translate([0,-1.5,0])cube([size(0.5),1,h-2],center=true);
+    }
+  } else {
+    union()translate([size(0.5),0,-(h/2)+1]){
+      translate([0,1.1,0])cube([size(0.5),1,h-2],center=true);
+      translate([0,-1.5,0])cube([size(0.5),1,h-2],center=true);
     }
   }
-  translate([0,0,-h])holePlacement()mounting(h);
+}
+
+module plate(h=10,switches=true){
+  color([0.7,1,0.5]){
+    difference(){
+      plateNoCuts();
+      translate([size(6),size(3),0])cornerchamfer("UR");
+      union(){
+        translate([0,0,moduleZ])keyPlacement()mxSwitchCut();
+      }
+      holePlacement()translate([0,0,-h-2.5])cylinder(d=mSize,h=10);
+    }
+    translate([0,0,-h])holePlacement()mounting(h);
+    
+    translate([size(1),size(1),0])cableGutter(h);
+    translate([size(2),size(1.25),0])cableGutter(h);
+    translate([size(3),size(1.35),0])cableGutter(h);
+    translate([size(4),size(1.25),0])cableGutter(h);
+    translate([size(5),size(1.1),0])cableGutter(h);
+    
+    translate([size(2),size(1),0])cableGutter(h,true);
+    translate([size(2),size(2.2),0])cableGutter(h,true);
+    translate([size(3),size(1.25),0])cableGutter(h,true);
+    translate([size(3),size(2.25),0])cableGutter(h,true);
+    translate([size(4),size(1.35),0])cableGutter(h,true);
+    translate([size(4),size(2.35),0])cableGutter(h,true);
+    translate([size(5),size(1.1),0])cableGutter(h,true);
+//    translate([size(5),size(2.25),0])cableGutter(h,true);
+
+  }
+  if(switches){
+    color([0.7,1,1])
+    keyPlacement()translate([9.5,9.5,16.15])import("switch_mx.stl");
+  }
 }
 
 module bottom(){
@@ -247,43 +287,133 @@ module bottom(){
   }
   module socketLegHoles(){
     for(i = [0:1:11]){
-      translate([0,i*2.54,0])cylinder(d=1,h=5);
+      translate([0,i*2.54,0])cylinder(d=1,h=3.2);
     }
   }
+  
+  module socketLegHole(){
+    translate([0,0,0])socketLegHoles();
+    translate([size(0.809),0,0])socketLegHoles();
+  }
+  
+  module socketHolderHoles(){
+    cylinder(d1=mScrewheadD(mSize),d2=mSize,h=moduleZ+0.2);
+    
+    translate([0,size(1)-8,0])cylinder(d1=mScrewheadD(mSize),d2=mSize,h=moduleZ+0.2);
+   
+  }
+  
   difference(){
     union(){
       plateNoCuts();
       translate([size(5.993),-size(0.454),keyZ]){
-        cube([size(0.945),size(3.554),moduleZ]);
-        x=3.5;
-        y=30.2;
-        z=1.3;
-        translate([x,y,z])socketHolder();
-        translate([x,y+13.5,z])socketHolder();
-        translate([x,y+27.5,z])socketHolder();
+        cube([size(1),size(3.554),moduleZ]);
       }
     }
     translate([0,0,-1.1])holePlacement()cylinder(d1=mScrewheadD(mSize),d2=mSize,h=moduleZ+0.2);
+   
+
     
-    translate([size(6.937),size(2.993),0])cornerchamfer("UR");
+    translate([size(6.991),size(2.993),0])cornerchamfer("UR");
     
-    translate([size(6.046),size(1.265),0])socketLegHoles();
-    translate([size(6.8525),size(1.265),0])socketLegHoles();
+    translate([size(6.6208),size(-1),-moduleZ])
+    rotate([0,0,-30])cube([size(1),size(3),moduleZ*2]);
+    
+    translate([size(6.53),size(1)+1.04,-1.1])socketHolderHoles();
+    translate([size(6.125),size(1.265),1.55])socketLegHole();
+    
+    translate([size(6.47),-3.4,1.2])cube([9.5,20.8,10]);
+
   }
   
 
 }
 
+module socketHolder(blank=false){
+  z=7.1;
+  d=-1.75;
+  if(blank){
+    difference(){
+      union(){
+        translate([0,-18,d])cube([10,5.5,z],center=true);
+        translate([0,-9,-z+2.3])cube([10,16,1],center=true);
+        translate([0,-7,-8.2])cylinder(d=mSize-0.2,h=moduleZ);
+      }
+      translate([0,-18,-7])cylinder(d=mSize,h=6);
+    }    
+  }else {
+    difference(){
+      union(){
+        translate([0,-7,d])cube([10,10,z],center=true);
+        translate([0,-18,d])cube([10,5.5,z],center=true);
+        translate([0,0,1.3])cube([10,32,1],center=true);
+      }
+      translate([0,-7,-7])cylinder(d=mSize,h=6);
+      translate([0,-18,-7])cylinder(d=mSize,h=6);
+    }
+  }
+}
+
+module IDCHolder(x=10,y=20,z=10,hollow=true){
+  difference(){
+    cube([x,y,z]);
+    if(hollow){
+      translate([-1,2,-1])cube([x+2,y-4,z-1]);
+      translate([1,1,-1.5])cube([x-2,y-2,z]);
+    }
+  }
+}
+
+module screw(size=mSize,h=10){
+  difference(){
+    union(){
+      cylinder(d1=mScrewheadD(size),d2=size,h=mScrewheadH(size));
+      cylinder(d=size,h=h);
+    }
+    cube([1,10,1],center=true);
+  }
+}
+
+module screws(blank=false){ 
+  translate([0,0,-1.1])holePlacement()screw();
+  translate([size(6.53),size(1)+1.04,-1.1])screw();
+  if(!blank){
+    translate([size(6.53),size(2)-7,-1.1])screw();
+  }
+}
+
+module socketAndIDC(blank=false){
+  translate([size(0.0), 0, 0])IDCHolder(11,22.8,9.9);
+  translate([size(0.1), size(2)+4.5, 5.3])socketHolder(blank);
+}
 
 ///////////////////////////////
 //  Render
 //////////////////////////////
 
+module left(blank){
+//  color([1,0,1])bottom();
+//  translate([size(6.43),-4.5,2])socketAndIDC(blank);
 
-color([1,0,1])
-bottom();
-translate([size(6.45),size(2),7]){
-    rotate([0,0,180])import("socket.stl");
-    translate([0,0,2.5])import("proMicro.stl");
+//color([0.9,0.7,0.4])translate([size(6.43),-4.5,2])IDCHolder(11,22.8,9.9);
+//
+//color([0.7,0.7,0.1])
+//translate([size(6.53),size(2),7.3])socketHolder();
+
+//  translate([size(6.53),size(2),7.5]){
+//    if(!blank){
+//        color([0.5,0.3,0.2])rotate([0,0,180])import("socket.stl");
+//        color([0.2,0.5,0.5])translate([0,0,2.5])import("proMicro.stl");
+//    }
+//      translate([3.6,-31.1,-1.5])rotate([90,180,90])import("IDC_2x5p.stl");  
+//  }
+  difference(){
+    translate([0,0,moduleZ+5.5])plate(6.5,false);
+    color([0.9,0.7,0.4])translate([size(6.42),-4.6,2])IDCHolder(11,22.8,9.9,false);
+  }
+
+//  screws(blank);
 }
-color([0.7,1,0.5])translate([0,0,moduleZ+9])plate();
+
+//left(false);
+translate([size(16),0,0])mirror([1,0,0])left(true);
