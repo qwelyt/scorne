@@ -391,29 +391,29 @@ module socketAndIDC(blank=false){
 //  Render
 //////////////////////////////
 
-module left(blank){
-//  color([1,0,1])bottom();
-//  translate([size(6.43),-4.5,2])socketAndIDC(blank);
+module left(blank,switches){
+  color([1,0,1])bottom();
+  translate([size(6.43),-4.5,2])socketAndIDC(blank);
 
 //color([0.9,0.7,0.4])translate([size(6.43),-4.5,2])IDCHolder(11,22.8,9.9);
-//
+
 //color([0.7,0.7,0.1])
 //translate([size(6.53),size(2),7.3])socketHolder();
 
-//  translate([size(6.53),size(2),7.5]){
-//    if(!blank){
-//        color([0.5,0.3,0.2])rotate([0,0,180])import("socket.stl");
-//        color([0.2,0.5,0.5])translate([0,0,2.5])import("proMicro.stl");
-//    }
-//      translate([3.6,-31.1,-1.5])rotate([90,180,90])import("IDC_2x5p.stl");  
-//  }
+  translate([size(6.53),size(2),7.5]){
+    if(!blank){
+        color([0.5,0.3,0.2])rotate([0,0,180])import("socket.stl");
+        color([0.2,0.5,0.5])translate([0,0,2.5])import("proMicro.stl");
+    }
+      translate([3.6,-31.1,-1.5])rotate([90,180,90])import("IDC_2x5p.stl");  
+  }
   difference(){
-    translate([0,0,moduleZ+5.5])plate(6.5,false);
+    translate([0,0,moduleZ+5.5])plate(6.5,switches);
     color([0.9,0.7,0.4])translate([size(6.42),-4.6,2])IDCHolder(11,22.8,9.9,false);
   }
 
 //  screws(blank);
 }
 
-//left(false);
-translate([size(16),0,0])mirror([1,0,0])left(true);
+left(false,false);
+translate([size(16),0,0])mirror([1,0,0])left(true,false);
