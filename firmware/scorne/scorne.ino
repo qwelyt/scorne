@@ -25,6 +25,13 @@ const byte numModifiers = 2;
 
 ModPosition modifiers[numModifiers] = {lower, raise};
 
+const byte keyLimit = 6;
+typedef struct {
+  byte meta;
+  byte keys[keyLimit];
+} KeyBuffer;
+
+
 byte keys[layers][numRows][numCols] = {
   // 0 Normal
   {
@@ -60,6 +67,8 @@ byte keys[layers][numRows][numCols] = {
 bool pressed[scanRounds][numRows][numCols] = {};
 bool lastState[numRows][numCols] = {};
 bool state[numRows][numCols] = {};
+KeyBuffer lastKeyBuffer;
+KeyBuffer keyBuffer;
 
 /*********************
 ****    BEGIN!    ****
@@ -171,16 +180,14 @@ void sendState(byte numRows, byte numCols, byte numModifiers, bool *state, bool 
   byte layer = checkLayer(state, modifiers, numModifiers, numRows, numCols);
 
   byte keyLimit = 6;
-  byte keyBuf[keyLimit] = {0, 0, 0, 0, 0, 0};
   byte keyIndex = 0;
-  byte meta = 0;
 
-  //printState(state, numCols, numRows);
+ // printState(state, numCols, numRows);
 
   for (byte row = 0; row < numRows; ++row) {
     for (byte col = 0; col < numCols; ++col) {
       if (state[row * numCols + col] == true) {
-        if (isModifier(row, col, modifiers, numModifiers)) {
+        if(isModifier(row, col, modifiers, numModifiers)){
           continue;
         }
         byte key = 0;
@@ -188,22 +195,49 @@ void sendState(byte numRows, byte numCols, byte numModifiers, bool *state, bool 
           key = keys[(l * numRows + row ) * numCols + col];
         }
         byte metaVal = metaValue(key);
-        meta |= metaVal;
+        keyBuffer.meta |= metaVal;
         if (metaVal == 0) {
-          keyBuf[keyIndex++] = key;
+          keyBuffer.keys[keyIndex++] = key;
         }
         if (keyIndex == keyLimit) {
-          sendBuffer(meta, keyBuf, keyLimit);
-          keyIndex = resetBuffer(keyBuf, keyLimit);
-          meta = 0;
+          sendBuffer(&keyBuffer, keyLimit);
+          saveKeyBuffer(&keyBuffer, &lastKeyBuffer, keyLimit);
+          keyIndex = resetBuffer(&keyBuffer, keyLimit);
         }
       }
     }
   }
-  if (keyIndex != 0 || stateChanged(numRows, numCols, state, lastState)) {
-    sendBuffer(meta, keyBuf, keyLimit);
-    keyIndex = resetBuffer(keyBuf, keyLimit);
-    meta = 0;
+ // printKeyBuf(&keyBuffer, keyLimit);
+ // printKeyBuf(&lastKeyBuffer, keyLimit);
+
+
+  if (keyIndex != 0 || keyBufferChanged(&keyBuffer, &lastKeyBuffer, keyLimit)) {
+    sendBuffer(&keyBuffer, keyLimit);
+    saveKeyBuffer(&keyBuffer, &lastKeyBuffer, keyLimit);
+    keyIndex = resetBuffer(&keyBuffer, keyLimit);
+  }
+  if(stateChanged(numRows, numCols, state, lastState)){
+    keyIndex = resetBuffer(&keyBuffer, keyLimit);
+  }
+   // printKeyBuf(&lastKeyBuffer, keyLimit);
+}
+
+bool keyBufferChanged(KeyBuffer *currentBuffer, KeyBuffer *lastBuffer, byte keyLimit) {
+  if(currentBuffer->meta != lastBuffer->meta) {
+    return true;
+  }
+  for(byte b=0; b<keyLimit; ++b){
+    if(currentBuffer->keys[b] != lastBuffer->keys[b]){
+      return true;
+    }
+  }
+  return false;
+}
+
+void saveKeyBuffer(KeyBuffer *current, KeyBuffer *saveTo, byte keyLimit) {
+  saveTo->meta = current->meta;
+  for(byte b=0; b<keyLimit; ++b){
+    saveTo->keys[b] = current->keys[b];
   }
 }
 
@@ -254,16 +288,17 @@ byte metaValue(byte key) {
   }
 }
 
-byte resetBuffer(byte *keyBuf, byte keyLimit) {
+byte resetBuffer(KeyBuffer *keyBuf, byte keyLimit) {
   for (byte b = 0; b < keyLimit; ++b) {
-    keyBuf[b] = Key::NONE;
+    keyBuf->keys[b] = Key::NONE;
   }
+  keyBuf->meta = 0;
   return 0;
 }
 
-void sendBuffer(byte meta, byte keyBuf[], byte keyLimit) {
+void sendBuffer(KeyBuffer *keyBuf, byte keyLimit){
   //printKeyBuf(keyBuf, keyLimit);
-  sendKeyBuffer(meta, keyBuf, keyLimit);
+  sendKeyBuffer(keyBuf->meta, keyBuf->keys, keyLimit);
 }
 
 ////////////
@@ -288,12 +323,13 @@ void printState(bool *state, byte numCols, byte numRows) {
   Serial.println();
 }
 
-void printKeyBuf(byte keyBuf[], byte keyLimit) {
-  Serial.println();
-  Serial.println("keyBuf");
+void printKeyBuf(KeyBuffer *keyBuf, byte keyLimit) {
+  Serial.print("keyBuf: ");
+  Serial.print(" ");
+  Serial.print(keyBuf->meta);
   for (byte b = 0; b < keyLimit; ++b) {
     Serial.print(" ");
-    Serial.print(keyBuf[b]);
+    Serial.print(keyBuf->keys[b]);
   }
   Serial.println();
 }
