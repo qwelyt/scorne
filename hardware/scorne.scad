@@ -2,6 +2,7 @@ showSwitchCut=true;
 showSwitch=true;
 showKeyCap=false;
 showSpaceBox=false;
+showScrews=false;
 fullboard=false;
 space=19.04;
 switchType="MX"; // ["MX","choc"]
@@ -35,7 +36,7 @@ function mNutH(m) = m-1;
 function mNutD(m) = m*(1+((1/3)*2));
 function mNutDHole(m) = mNutD(m)+2;
 function mScrewheadH(m) = m-1;
-function mScrewheadD(m) = m+2.5; // This is most probably not correct, but works for m3
+function mScrewheadD(m) = m+3; // This is most probably not correct, but works for m3
 
           
 function position(x,y,z) = [space*(x-1), space*(y-1), z];
@@ -381,7 +382,9 @@ module left(blank,switches,height){
 
   translate([0,0,moduleZ+height-1])plate(height);
 
-//  screws(blank);
+  if(showScrews){
+    screws(blank);
+  }
 }
 
 left(false,false,keyboardHeight);
