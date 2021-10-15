@@ -202,15 +202,17 @@ module plateNoCuts(){
   
 }
 module cableGutter(h=10,rotate=false){
+  hh = h > 6 ? h-2 : h-0.3; 
+  echo(hh);
   if(rotate){
     union()translate([-0.5,-size(0.5),-(h/2)+1])rotate([0,0,90]){
-      translate([0,1.1,0])cube([size(0.5),1,h-2],center=true);
-      translate([0,-1.5,0])cube([size(0.5),1,h-2],center=true);
+      translate([0,1.1,0])cube([size(0.5),1,hh],center=true);
+      translate([0,-1.5,0])cube([size(0.5),1,hh],center=true);
     }
   } else {
     union()translate([size(0.5),0,-(h/2)+1]){
-      translate([0,1.1,0])cube([size(0.5),1,h-2],center=true);
-      translate([0,-1.5,0])cube([size(0.5),1,h-2],center=true);
+      translate([0,1.1,0])cube([size(0.5),1,hh],center=true);
+      translate([0,-1.5,0])cube([size(0.5),1,hh],center=true);
     }
   }
 }
@@ -226,6 +228,8 @@ module plate(h=10){
     }
     
     translate([0,0,-h])holePlacement()mounting(h);
+    
+    
     
     translate([size(1),size(1),0])cableGutter(h);
     translate([size(2),size(1.25),0])cableGutter(h);
@@ -365,7 +369,7 @@ module socketAndIDC(blank=false){
 //////////////////////////////
 
 module left(blank,switches,height){
-  color([1,0,1])bottom();
+//  color([1,0,1])bottom();
 
   translate([size(6.43),-3,2])
   color([0.3,1,0.8])
@@ -385,7 +389,8 @@ module left(blank,switches,height){
 }
 
 left(false,false,keyboardHeight);
-translate([size(16),0,0])mirror([1,0,0])left(true,false,keyboardHeight);
+//translate([size(16),0,0])mirror([1,0,0])left(true,false,keyboardHeight);
+
 
 
 //bottom();
