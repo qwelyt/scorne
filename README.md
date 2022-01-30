@@ -11,7 +11,7 @@ Parts from https://github.com/MKSwe/OpenSCAD-utils are used in this project.
 ![Scorne underside bulid pic](https://i.imgur.com/1n74GQY.jpg)
 
 
-# LICENCE
+# LICENSE
 The firmware is under GNU GPL 3.0.  
 The hardware is under CERN-OHL-S.  
 See the respective directories for this.
